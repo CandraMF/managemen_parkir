@@ -1,1 +1,1 @@
-Kalem can, tiba2 pada ilang pas aku push :)
+baru add navbar sama page login. 
