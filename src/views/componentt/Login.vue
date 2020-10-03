@@ -1,5 +1,5 @@
 <template>
-  <div-app>
+  <v-app>
     <div class="container">
       <div class="img">
         <img src="../assets/vehicle.svg" />
@@ -22,12 +22,13 @@
           </div>
           <a class="a" href="#">Forgot Password?</a>
           <div class="text-center">
-            <v-btn class="btn" rounded color="black" dark> Login </v-btn>
+            <v-btn class="btn py-2" rounded dark
+            to="/"> Login </v-btn>
           </div>
         </form>
       </div>
     </div>
-  </div-app>
+  </v-app>
 </template>
 
 <style type="text/css">
@@ -50,7 +51,8 @@ body {
 
 .img img {
   width: 100%;
-  margin-top: 200px;
+  margin-top: 230px;
+  margin-left: 20px;
 }
 .login-container {
   display: flex;

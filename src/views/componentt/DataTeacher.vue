@@ -1,21 +1,20 @@
 <template>
   <v-app>
     <v-content>
-        <TeachersTable />
+      <TeachersTable />
       <router-view></router-view>
     </v-content>
   </v-app>
-
 </template>
 
 <script>
-import TeachersTable from '../components/TeachersTable';
+import TeachersTable from "../component/TeachersTable";
 
 export default {
-  name: 'Teacher',
+  name: "Teacher",
 
   components: {
-     TeachersTable,
+    TeachersTable,
   },
   data: () => ({
     //
