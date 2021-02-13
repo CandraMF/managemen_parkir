@@ -18,6 +18,10 @@ module.exports = (sequelize, DataTypes) => {
       type: Sequelize.UUID,
       unique: true
     },
+    role: {
+      allowNull: false,
+      type: Sequelize.STRING,
+    },
     password: {
       type: Sequelize.UUID,
       unique: true

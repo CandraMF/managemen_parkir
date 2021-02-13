@@ -12,7 +12,7 @@ exports.findAll = async function(req, res) {
         model.user.findAll().then((users) => {
             res.status(200).json({
                 'sucess': 1,
-                'data': users, 
+                'data': users,
                 'count': data.count, 
             });
         });    
@@ -30,13 +30,15 @@ exports.create = async function(req, res) {
     var {       
         name,
         email,
-        password
+        password,
+        role
     } = req.body;
     
     await bcryptjs.hash(password, salt, function(err, hash){
         model.user.create({
             name,        
             email,
+            role,
             password: hash
         }).then((user) => {
             res.status(200).json({
@@ -132,29 +134,41 @@ exports.update = async function(req, res) {
     var {   
         id,     
         name,    
-        email,             
+        email,    
     } = req.body;
-    
-    model.user.update({        
-        name, 
-        email,
-    }, {
+
+    await model.user.findOne({
         where: {
             id: id
-        }
+        },
     }).then((user) => {
-        res.json({
-            'success': 1,
-            'messages': 'user berhasil diupdate',
-            'data': user,
-        })
+
+        model.user.update({        
+            name: name, 
+            email: email,
+        }, {
+            where: {
+                id: id
+            }
+        }).then((user) => {
+            res.json({
+                'success': 1,
+                'messages': 'user berhasil diupdate',
+                'data': user,
+            })
+        }).catch(function(err) {
+            res.status(400).json({
+                'success': 0,
+                'messages': err.message,
+                'data': {},
+            })            
+        }) 
+
     }).catch(function(err) {
-        res.status(400).json({
-            'success': 0,
-            'messages': err.message,
-            'data': {},
-        })            
-    })    
+        
+    }); 
+    
+   
 };
 
 exports.delete = async function(req, res) {
@@ -175,6 +189,34 @@ exports.delete = async function(req, res) {
             'data': {},
         })
     });              
+};
+
+exports.editRole = async function(req, res) {
+
+    var {   
+        id,     
+        role 
+    } = req.body;
+
+    model.user.update({        
+        role: role
+    }, {
+        where: {
+            id: id
+        }
+    }).then((user) => {
+        res.json({
+            'success': 1,
+            'messages': 'user berhasil diupdate',
+            'data': user,
+        })
+    }).catch(function(err) {
+        res.status(400).json({
+            'success': 0,
+            'messages': err.message,
+            'data': {},
+        })            
+    })  
 };
 
 

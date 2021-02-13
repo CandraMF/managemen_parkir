@@ -55,7 +55,6 @@
         <div class="text-right  mb-3">
           <v-menu 
             offset-y 
-            left
             dark
             :close-on-content-click="false"
             v-model="menuDownload">
@@ -78,69 +77,58 @@
                   </v-list-item-avatar>
                   <v-list-item-content>
                     <v-list-item-title>Download Laporan</v-list-item-title>
-                    <v-list-item-subtitle>Pilih Bulan, Tahun, dan Pekan</v-list-item-subtitle>
+                    <v-list-item-subtitle>Pilih tanggal awal dan akhir</v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
               </v-list>
 
               <v-divider></v-divider>
-
-              <v-list>
-                <v-list-item>
-                  <v-form
-                    ref="form"
-                  >
-                    <v-select 
-                      :items="tahun"
-                      placeholder="Tahun"
-                      label="Tahun"
-                      v-model="laporan.tahun"
-                      :rules="tahunRules">
-                    </v-select>
-                    <v-select 
-                      :items="items"
-                      placeholder="Bulan"
-                      label="Bulan"
-                      v-model="laporan.bulan"
-                      :rules="bulanRules">
-                    </v-select>
-                    <v-radio-group
-                      v-model="laporan.pekan"
-                      row
-                      label="Pekan"
-                      :rules="pekanRules">
-                      <v-radio
-                        label="All"
-                        value="All"
-                        color="primary"
-                      ></v-radio>
-                      <v-radio
-                        label="1"
-                        value="1"
-                        color="primary"
-                      ></v-radio>
-                      <v-radio
-                        label="2"
-                        value="2"
-                        color="primary"
-                      ></v-radio>
-                      <v-radio
-                        label="3"
-                        value="3"
-                        color="primary"
-                      ></v-radio>
-                      <v-radio
-                        label="4"
-                        value="4"
-                        color="primary"
-                      ></v-radio>
-                    </v-radio-group>
-
-                  </v-form>
-                </v-list-item>
-              </v-list>
-
+              <v-row>
+                <v-col
+                  cols="12"
+                >
+                  <v-row align="center" justify="center">
+                    <v-date-picker
+                      v-model="dates"
+                      color="primary"
+                      range
+                    ></v-date-picker>
+                  </v-row>
+                </v-col>
+                <v-col
+                  cols="12"
+                >
+                  <v-row align="center" justify="center">
+                    <v-btn
+                      color="indigo"
+                      elevation="10"
+                      class="mr-2"
+                      @click="dates = [moment().startOf('month').format('YYYY-MM-DD'), moment().endOf('month').format('YYYY-MM-DD')]"
+                      >
+                      Bulan Ini
+                    </v-btn>
+                    <v-btn
+                      color="indigo"
+                      elevation="10"
+                      @click="dates = [moment().startOf('isoWeek').format('YYYY-MM-DD'), moment().endOf('isoWeek').format('YYYY-MM-DD')]"
+                      >
+                      Pekan Ini
+                    </v-btn>
+                  </v-row>
+                  <v-row align="center" justify="center" class="mt-2"> 
+                    <v-btn
+                      depressed
+                      @click="dates = []"
+                      >
+                      <v-icon left small>mdi-reload</v-icon>
+                      Reset
+                    </v-btn>
+                  </v-row>
+                </v-col>
+              </v-row>
+            
               <v-card-actions>
+                <v-spacer></v-spacer>
                 <v-btn
                   text
                   @click="menuDownload = false"
@@ -356,6 +344,7 @@ export default {
       v => !!v || 'Pekan is required',
     ],
     title: '',
+    dates: [],
     valid: false,
     detailParkir: [],
     items: [
@@ -445,6 +434,10 @@ export default {
   },
 
   mounted() {
+
+    var m = moment()
+    console.log(m.startOf('isoWeek').week(2).format('YYYY-MM-DD'))
+    console.log(m.clone().endOf('isoWeek').format('YYYY-MM-DD'))
     
     ParkirService.getAll()
       .then((res) => {
@@ -526,25 +519,28 @@ export default {
       }
     },
 
-    download_laporan(tahun, bulan, pekan) {
-      
-      console.log(tahun, bulan, pekan)
-      console.log(moment().year(tahun).month(this.items.indexOf(bulan)).startOf('month').toDate())
+    download_laporan() {
 
-      if(this.$refs.form.validate()){
-
+      if(this.dates.length > 1){
         var from, to
-  
+        if(this.dates[0] > this.dates[1]) {
+          from = this.dates[1]
+          to = this.dates[0]
+        } else {
+          from = this.dates[0]
+          to = this.dates[1]
+        }
+        
         ParkirService.laporan(from, to)
           .then(res => {
             this.laporanParkir = res.data.data;
-            console.log(this.laporanParkir)
+            
             if(typeof this.laporanParkir !== 'undefined' && this.laporanParkir.length > 0) {
               
               // var source =  this.$refs["content"];
               let rows = [];
               let columnHeader = ['ID', 'Jenis', 'Nama', 'Role', 'Tgl Masuk', 'Jam Masuk', 'Tgl Keluar', 'Jam Keluar', 'Status'];
-              let pdfName = 'LAPORAN_PARKIR_'+(this.items.indexOf(bulan) + 1)+'/'+tahun;
+              let pdfName = 'LAPORAN_PARKIR_'+from+"_SD_"+to
               var tamu = 0
               var guru = 0
               var siswa = 0
@@ -597,7 +593,7 @@ export default {
               var doc = new jsPDF();
               doc.text(15, 20, 'LAPORAN PARKIR')
               doc.setFontSize(9);
-              doc.text(15, 25, bulan.toUpperCase() + ' ' +tahun)
+              doc.text(15, 25, from + ' s/d ' +to)
     
               doc.autoTable(columnHeader, rows, { startY: 35 });
     
@@ -626,7 +622,7 @@ export default {
           })
 
       } else {
-        this.message = 'Pilih Bulan dan Tahun Terlebih Dahulu'
+        this.message = 'Pilih Tanggal Mulai dan Akhir Terlebih Dahulu'
         this.snackbar = true
       }
     },

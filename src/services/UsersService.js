@@ -9,6 +9,7 @@ class UsersService {
             'id': user.id,
             'name': user.name,
             'email': user.email,
+            'role': user.role,
             'password': user.password,
         })
     }
@@ -17,6 +18,12 @@ class UsersService {
             'id': id,
             'name': name,
             'email': email,
+        })
+    }
+    editRole(id, role) {
+        return  http.put("/user/editRole", {
+            'id': id,
+            'role': role,
         })
     }
     changePassword(id, oldPassword, newPassword) {

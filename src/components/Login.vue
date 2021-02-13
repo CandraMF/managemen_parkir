@@ -173,6 +173,7 @@ export default {
               this.$session.start();
               this.$session.set("id", response.data.data.id);
               this.$session.set("name", response.data.data.name);
+              this.$session.set("role", response.data.data.role);
               console.log(response.data.message);
   
               this.$swal({
